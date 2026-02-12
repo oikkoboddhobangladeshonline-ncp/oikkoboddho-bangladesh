@@ -71,7 +71,7 @@ export default function ReportForm({ userLocation, onClose }) {
 
       // Call Server-Side API for Notifications
       try {
-        await fetch('/api/send-incident', {
+        const response = await fetch('/api/send-incident', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -81,8 +81,13 @@ export default function ReportForm({ userLocation, onClose }) {
             emergencyContacts
           })
         });
+
+        if (!response.ok) {
+          console.warn('Notification API returned non-OK status:', response.status);
+        }
       } catch (notifyError) {
         console.error("Notification failed but report saved:", notifyError);
+        // Don't throw - report is already saved to database
       }
 
       setStatus('success');

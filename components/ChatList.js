@@ -110,39 +110,48 @@ export default function ChatList({ type = 'nationwide' }) {
 
     useEffect(() => {
         const fetchMessages = async () => {
-            const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+            try {
+                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-            // Build Query
-            let query = supabase
-                .from('public_chats')
-                .select('*')
-                .gt('created_at', oneDayAgo)
-                .order('created_at', { ascending: true });
-
-            if (type === 'admin') {
-                query = query.eq('type', 'admin');
-            } else if (type === 'support') {
-                // WORKAROUND: Use media_type to filter support messages since we couldn't add 'type' column
-                query = query.ilike('media_type', 'support%');
-            } else {
-                // For nationwide/nearby, exclude support messages
-                // Ideally we exclude support messages from public feed.
-                query = query.not('media_type', 'ilike', 'support%').neq('type', 'admin'); // Safe fallback if type column exists or not
-            }
-
-            const { data, error } = await query;
-
-            // Fallback for Admin if 'type' column error (if it doesn't exist)
-            if (error && type === 'admin') {
-                const { data: retryData } = await supabase
+                // Build Query
+                let query = supabase
                     .from('public_chats')
                     .select('*')
                     .gt('created_at', oneDayAgo)
-                    .eq('is_admin', true)
                     .order('created_at', { ascending: true });
-                if (retryData) setMessages(retryData);
-            } else if (data) {
-                setMessages(data);
+
+                if (type === 'admin') {
+                    query = query.eq('type', 'admin');
+                } else if (type === 'support') {
+                    // WORKAROUND: Use media_type to filter support messages since we couldn't add 'type' column
+                    query = query.ilike('media_type', 'support%');
+                } else {
+                    // For nationwide/nearby, exclude support messages
+                    // Ideally we exclude support messages from public feed.
+                    query = query.not('media_type', 'ilike', 'support%').neq('type', 'admin'); // Safe fallback if type column exists or not
+                }
+
+                const { data, error } = await query;
+
+                // Fallback for Admin if 'type' column error (if it doesn't exist)
+                if (error && type === 'admin') {
+                    const { data: retryData } = await supabase
+                        .from('public_chats')
+                        .select('*')
+                        .gt('created_at', oneDayAgo)
+                        .eq('is_admin', true)
+                        .order('created_at', { ascending: true });
+                    if (retryData) setMessages(retryData);
+                } else if (data) {
+                    setMessages(data);
+                } else if (error) {
+                    console.error('Chat fetch error:', error);
+                    // Table might not exist - show empty state
+                    setMessages([]);
+                }
+            } catch (err) {
+                console.error('Chat initialization error:', err);
+                setMessages([]);
             }
 
             setLoading(false);
