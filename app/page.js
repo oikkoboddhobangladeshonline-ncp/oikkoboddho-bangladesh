@@ -30,30 +30,30 @@ function MainContent() {
     const [isPickingLocation, setIsPickingLocation] = useState(false);
     const [pickedLocation, setPickedLocation] = useState(null);
 
-    // 🧹 Clean up old data on fresh launch
+    // 🧹 FORCE PURGE - Clean up ALL old data
     useEffect(() => {
-        const FRESH_LAUNCH_DATE = '2026-02-12';
-        const lastClear = localStorage.getItem('last_data_clear');
+        const APP_VERSION = 'v2.0-fresh-launch'; // Change this to force re-clear
+        const currentVersion = localStorage.getItem('app_version');
 
-        if (!lastClear || lastClear < FRESH_LAUNCH_DATE) {
-            // Clear all old app data
-            const keysToRemove = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && (
-                    key.startsWith('ncp_') ||
-                    key.includes('username') ||
-                    key.includes('user_id') ||
-                    key.includes('incident') ||
-                    key.includes('chat')
-                )) {
-                    keysToRemove.push(key);
-                }
-            }
+        // Force clear if version doesn't match
+        if (currentVersion !== APP_VERSION) {
+            console.log('🧹 PURGING ALL OLD DATA...');
 
-            keysToRemove.forEach(key => localStorage.removeItem(key));
-            localStorage.setItem('last_data_clear', FRESH_LAUNCH_DATE);
-            console.log('🧹 Old data cleared for fresh launch');
+            // Clear ALL localStorage except theme preference
+            const theme = localStorage.getItem('theme');
+            localStorage.clear();
+            if (theme) localStorage.setItem('theme', theme);
+
+            // Set new version
+            localStorage.setItem('app_version', APP_VERSION);
+            localStorage.setItem('last_data_clear', new Date().toISOString());
+
+            console.log('✅ Cache purged! App is now fresh.');
+
+            // Force reload to ensure clean state
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
         }
     }, []);
 
