@@ -32,7 +32,7 @@ function MainContent() {
 
     // 🧹 FORCE PURGE - Clean up ALL old data
     useEffect(() => {
-        const APP_VERSION = 'v2.0-fresh-launch'; // Change this to force re-clear
+        const APP_VERSION = 'v3.0-force-clear-1770891834'; // Change this to force re-clear
         const currentVersion = localStorage.getItem('app_version');
 
         // Force clear if version doesn't match

@@ -27,18 +27,30 @@ export default function IncidentHistory({ onClose }) {
     });
 
     useEffect(() => {
+    useEffect(() => {
         const fetchHistory = async () => {
             const { data, error } = await supabase
-                .from('incidents')
+                .from('reports')
                 .select('*')
                 .order('created_at', { ascending: false })
                 .limit(100);
 
+            if (error) console.error('Error fetching history:', error);
             if (data) setHistory(data);
             setLoading(false);
         };
 
         fetchHistory();
+
+        // Subscribe to realtime updates
+        const channel = supabase
+            .channel('reports_history')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reports' }, (payload) => {
+                setHistory(prev => [payload.new, ...prev]);
+            })
+            .subscribe();
+
+        return () => supabase.removeChannel(channel);
     }, []);
 
     return (
