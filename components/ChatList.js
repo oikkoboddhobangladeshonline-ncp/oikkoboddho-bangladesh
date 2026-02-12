@@ -192,7 +192,7 @@ export default function ChatList({ type = 'nationwide' }) {
             // Only show messages with location AND within 5km
             if (!msg.lat || !msg.lng || !myLocation) return false;
             const dist = getDistanceFromLatLonInKm(myLocation.lat, myLocation.lng, msg.lat, msg.lng);
-            return dist < 50000; // 50000 km for testing (basically global), reduce to 5 or 10 for prod
+            return dist < 5; // 5 km radius for nearby chat
         }
         return true;
     });
