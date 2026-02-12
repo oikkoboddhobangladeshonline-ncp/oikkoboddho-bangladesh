@@ -294,8 +294,7 @@ export default function MapDisplay({ onLocationUpdate, shareLocation, isPickingL
     useEffect(() => {
         if (!map.current) return;
         const fetchIncidents = async () => {
-            const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
-            const { data } = await supabase.from('reports').select('*').gte('created_at', twoDaysAgo).order('created_at', { ascending: false });
+            const { data } = await supabase.from('reports').select('*').order('created_at', { ascending: false }).limit(20);
             if (data) data.forEach(addIncidentMarker);
         };
         fetchIncidents();

@@ -154,11 +154,60 @@ export default function ReportForm({ userLocation, onClose }) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-3 py-2 rounded-lg text-sm flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              {userLocation ?
-                `${t.location_detected}: ${userLocation.lat.toFixed(5)}, ${userLocation.lng.toFixed(5)}` :
-                t.detecting}
+            {/* Location Section - Clickable to enable manual entry */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => setIsManualLocation(!isManualLocation)}
+                className="w-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-3 py-2.5 rounded-lg text-sm flex items-center justify-between gap-2 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  <span className="font-medium">
+                    {isManualLocation ? '📍 Manual Location' : 
+                      (userLocation ?
+                        `${t.location_detected}: ${userLocation.lat.toFixed(5)}, ${userLocation.lng.toFixed(5)}` :
+                        t.detecting)}
+                  </span>
+                </div>
+                <span className="text-xs font-semibold px-2 py-1 bg-blue-100 dark:bg-blue-800 rounded-full">
+                  {isManualLocation ? 'Use Auto' : 'Enter Manually'}
+                </span>
+              </button>
+              
+              {/* Manual Location Input Fields */}
+              {isManualLocation && (
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                      Latitude
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={manualLat}
+                      onChange={(e) => setManualLat(e.target.value)}
+                      placeholder="23.8103"
+                      className="w-full p-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-ncp-green outline-none"
+                      required={isManualLocation}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                      Longitude
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={manualLng}
+                      onChange={(e) => setManualLng(e.target.value)}
+                      placeholder="90.4125"
+                      className="w-full p-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-ncp-green outline-none"
+                      required={isManualLocation}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
